@@ -16,13 +16,14 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation(libs.junit.jupiter)
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
+    testImplementation("io.cucumber:cucumber-java:7.15.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.15.0")
+    testImplementation("org.seleniumhq.selenium:selenium-java:4.25.0")
+    testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.11.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-suite-engine:1.11.1")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -40,4 +41,8 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showStandardStreams = true
+    }
 }
