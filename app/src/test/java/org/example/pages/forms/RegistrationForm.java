@@ -1,5 +1,6 @@
 package org.example.pages.forms;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,8 @@ import org.example.pages.validators.RequiredCheckboxValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class RegistrationForm extends GenericFormWrapper<RegistrationForm> {
   public RegistrationForm(WebDriver driver) {
@@ -34,7 +37,7 @@ public class RegistrationForm extends GenericFormWrapper<RegistrationForm> {
       "email",
       new FormField(
         "email",
-        "E-mail Address",
+        "E-Mail Address",
         "//input[@name='email']",
         "//input[@name='email']/following-sibling::div[@class='text-danger']",
         List.of(new EmailValidator())));
@@ -105,14 +108,13 @@ public class RegistrationForm extends GenericFormWrapper<RegistrationForm> {
     return errors;
   }
 
-  public List<String> validateFieldsCorrectly() {
-    List<String> errors = new java.util.ArrayList<>();
-
-    super.fillFieldsWithValidData().submit();
-    if (!this.driver.getCurrentUrl().endsWith("success")) {
-      errors.add("Form submission with valid data did not reach success page.");
-    }
-
-    return errors;
+  @Override
+  public RegistrationForm waitForPostSubmit() {
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    wait.until(ExpectedConditions.or(
+      ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='text-danger']")),
+      ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='alert alert-danger alert-dismissible']")),
+      ExpectedConditions.urlContains("success")));
+    return this;
   }
 }

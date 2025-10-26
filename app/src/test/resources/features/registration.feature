@@ -3,7 +3,6 @@ Feature: Account Registration Form Validation
   Scenario: Validate behavior on the registration page with invalid data
     Given the user is on the registration page
     When the user submits invalid data
-    Then the correct error messages should be displayed
   
   Scenario: Validate behavior on the registration page with valid data
     Given the user is on the registration page

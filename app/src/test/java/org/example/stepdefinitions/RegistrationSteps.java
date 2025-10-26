@@ -1,15 +1,17 @@
 package org.example.stepdefinitions;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
 import org.example.pages.forms.RegistrationForm;
-import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 public class RegistrationSteps {
   private WebDriver driver = new ChromeDriver();
@@ -23,22 +25,21 @@ public class RegistrationSteps {
   @When("the user submits invalid data")
   public void submitInvalidRegistrationData() {
     List<String> errors = form.validateFieldsIncorrectly();
-    if (!errors.isEmpty()) {
-      Assertions.fail(String.join("\n", errors));
-    }
+    assertTrue(errors.isEmpty(), String.join("\n", errors));
   }
 
   @When("the user submits valid data")
   public void submitValidRegistrationData() {
-    List<String> errors = form.validateFieldsCorrectly();
-    if (!errors.isEmpty()) {
-      Assertions.fail(String.join("\n", errors));
-    }
+    form.fillFieldsWithValidData().submit();
   }
 
-  @Then("the correct error messages should be displayed")
-  public void correctErrorMessagesDisplayed() {}
-
   @Then("the user should be redirected to the success page")
-  public void redirectToSuccessPage() {}
+  public void redirectToSuccessPage() {
+    assertTrue(this.driver.getCurrentUrl().endsWith("account/success"), "Expected to be redirected to success page.");
+  }
+
+  @After
+  public void tearDown() {
+    driver.quit();
+  }
 }

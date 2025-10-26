@@ -6,8 +6,9 @@ import java.util.Map;
 import org.example.pages.FormField;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
-public class GenericFormWrapper<F extends GenericFormWrapper<F>> {
+public abstract class GenericFormWrapper<F extends GenericFormWrapper<F>> {
   public WebDriver driver;
   public Map<String, FormField> fields = new HashMap<>();
   public By submitButtonLocator;
@@ -17,29 +18,37 @@ public class GenericFormWrapper<F extends GenericFormWrapper<F>> {
   }
 
   public F fillOutField(String fieldName, String value) {
-    FormField field = this.fields.get(fieldName);
-    if (field == null) throw new IllegalArgumentException("Unknown field: " + fieldName);
-    By locator = By.xpath(field.xpath());
-    driver.findElement(locator).clear();
-    driver.findElement(locator).sendKeys(value != null ? value : "");
+    WebElement element = this.getFormElement(fieldName);
+    element.clear();
+    element.sendKeys(value != null ? value : "");
     return (F) this;
   }
 
   public F checkCheckbox(String fieldName, boolean checked) {
-    FormField field = this.fields.get(fieldName);
-    if (field == null) throw new IllegalArgumentException("Unknown field: " + fieldName);
-    By locator = By.xpath(field.xpath());
-    boolean isChecked = driver.findElement(locator).isSelected();
+    WebElement element = this.getFormElement(fieldName);
+    boolean isChecked = element.isSelected();
     if (isChecked != checked) {
-      driver.findElement(locator).click();
+      element.click();
     }
     return (F) this;
   }
 
+  private WebElement getFormElement(String fieldName) {
+    FormField field = this.fields.get(fieldName);
+    if (field == null) {
+      throw new IllegalArgumentException("Unknown field: " + fieldName);
+    }
+    By locator = By.xpath(field.xpath());
+    return driver.findElement(locator);
+  }
+
   public F submit() {
     driver.findElement(this.submitButtonLocator).click();
+    this.waitForPostSubmit();
     return (F) this;
   }
+
+  public abstract F waitForPostSubmit();
 
   public List<String> validateFieldsIncorrectly() {
     List<String> errors = new java.util.ArrayList<>();

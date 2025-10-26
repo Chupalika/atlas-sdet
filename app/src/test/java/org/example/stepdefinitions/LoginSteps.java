@@ -1,12 +1,14 @@
 package org.example.stepdefinitions;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
 import org.example.pages.forms.LoginForm;
-import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -23,19 +25,23 @@ public class LoginSteps {
   @When("the user submits invalid credentials")
   public void submitInvalidLoginCredentials() {
     List<String> errors = form.invalidateLogin();
-    if (!errors.isEmpty()) {
-      Assertions.fail(String.join("\n", errors));
-    }
+    assertTrue(errors.isEmpty(), String.join("\n", errors));
   }
 
   @When("the user submits valid credentials")
   public void submitValidLoginCredentials() {
-    List<String> errors = form.validateLogin();
-    if (!errors.isEmpty()) {
-      Assertions.fail(String.join("\n", errors));
-    }
+    form.fillOutField("email", "asdfxyz@asdfxyz.com")
+        .fillOutField("password", "a".repeat(4))
+        .submit();
   }
 
   @Then("the user should be redirected to the account page")
-  public void redirectToAccountPage() {}
+  public void redirectToAccountPage() {
+    assertTrue(this.driver.getCurrentUrl().endsWith("account/account"), "Expected to be redirected to account page");
+  }
+
+  @After
+  public void tearDown() {
+    driver.quit();
+  }
 }
