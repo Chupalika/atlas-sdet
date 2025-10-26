@@ -1,5 +1,6 @@
 package org.example.pages.forms;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.example.pages.FormField;
@@ -7,9 +8,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class GenericFormWrapper<F extends GenericFormWrapper<F>> {
-  protected WebDriver driver;
-  protected Map<String, FormField> fields = new HashMap<>();
-  protected By submitButton;
+  public WebDriver driver;
+  public Map<String, FormField> fields = new HashMap<>();
+  public By submitButtonLocator;
 
   public GenericFormWrapper(WebDriver driver) {
     this.driver = driver;
@@ -18,24 +19,47 @@ public class GenericFormWrapper<F extends GenericFormWrapper<F>> {
   public F fillOutField(String fieldName, String value) {
     FormField field = this.fields.get(fieldName);
     if (field == null) throw new IllegalArgumentException("Unknown field: " + fieldName);
-    By locator = field.locator();
+    By locator = By.xpath(field.xpath());
     driver.findElement(locator).clear();
     driver.findElement(locator).sendKeys(value != null ? value : "");
     return (F) this;
   }
 
-  public F submit() {
-    driver.findElement(this.submitButton).click();
+  public F checkCheckbox(String fieldName, boolean checked) {
+    FormField field = this.fields.get(fieldName);
+    if (field == null) throw new IllegalArgumentException("Unknown field: " + fieldName);
+    By locator = By.xpath(field.xpath());
+    boolean isChecked = driver.findElement(locator).isSelected();
+    if (isChecked != checked) {
+      driver.findElement(locator).click();
+    }
     return (F) this;
   }
 
-  public void validateFields() {
+  public F submit() {
+    driver.findElement(this.submitButtonLocator).click();
+    return (F) this;
+  }
+
+  public List<String> validateFieldsIncorrectly() {
+    List<String> errors = new java.util.ArrayList<>();
     for (String fieldName : this.fields.keySet()) {
       FormField field = this.fields.get(fieldName);
       for (var validator : field.validators()) {
-        validator.validate(field.name(), field.label(), this);
+        errors.addAll(validator.validateErrorMessages(field.name(), this));
       }
     }
+    return errors;
+  }
+
+  public F fillFieldsWithValidData() {
+    for (String fieldName : this.fields.keySet()) {
+      FormField field = this.fields.get(fieldName);
+      for (var validator : field.validators()) {
+        validator.fillWithValidData(field.name(), this);
+      }
+    }
+    return (F) this;
   }
 
   public WebDriver getDriver() {

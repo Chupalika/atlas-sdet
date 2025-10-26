@@ -1,6 +1,9 @@
 package org.example.stepdefinitions;
 
+import java.util.List;
+
 import org.example.pages.forms.RegistrationForm;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -19,9 +22,23 @@ public class RegistrationSteps {
 
   @When("the user submits invalid data")
   public void submitInvalidData() {
-    form.validateFields();
+    List<String> errors = form.validateFieldsIncorrectly();
+    if (!errors.isEmpty()) {
+      Assertions.fail(String.join("\n", errors));
+    }
+  }
+
+  @When("the user submits valid data")
+  public void submitValidData() {
+    List<String> errors = form.validateFieldsCorrectly();
+    if (!errors.isEmpty()) {
+      Assertions.fail(String.join("\n", errors));
+    }
   }
 
   @Then("the correct error messages should be displayed")
-  public void the_correct_error_messages_should_be_displayed() {}
+  public void placeholder() {}
+
+  @Then("the user should be redirected to the success page")
+  public void placeholder2() {}
 }
