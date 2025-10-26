@@ -21,7 +21,7 @@ public class RegistrationSteps {
   }
 
   @When("the user submits invalid data")
-  public void submitInvalidData() {
+  public void submitInvalidRegistrationData() {
     List<String> errors = form.validateFieldsIncorrectly();
     if (!errors.isEmpty()) {
       Assertions.fail(String.join("\n", errors));
@@ -29,7 +29,7 @@ public class RegistrationSteps {
   }
 
   @When("the user submits valid data")
-  public void submitValidData() {
+  public void submitValidRegistrationData() {
     List<String> errors = form.validateFieldsCorrectly();
     if (!errors.isEmpty()) {
       Assertions.fail(String.join("\n", errors));
@@ -37,8 +37,8 @@ public class RegistrationSteps {
   }
 
   @Then("the correct error messages should be displayed")
-  public void placeholder() {}
+  public void correctErrorMessagesDisplayed() {}
 
   @Then("the user should be redirected to the success page")
-  public void placeholder2() {}
+  public void redirectToSuccessPage() {}
 }
